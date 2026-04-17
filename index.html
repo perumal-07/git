@@ -1,11 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>welcome to git practice</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip Planner</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <span class="logo">✈️ Trip Planner</span>
+      <button id="btn-new-trip" class="btn btn-primary">+ New Trip</button>
+    </div>
+  </header>
+
+  <!-- ===== TRIPS LIST VIEW ===== -->
+  <main id="view-list" class="view active">
+    <div class="container">
+      <h2 class="section-title">My Trips</h2>
+      <div id="trip-cards" class="trip-grid">
+        <p id="no-trips-msg" class="empty-msg">No trips yet. Click <strong>+ New Trip</strong> to get started!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== TRIP DETAIL VIEW ===== -->
+  <main id="view-detail" class="view">
+    <div class="container">
+      <button id="btn-back" class="btn btn-ghost">← Back to trips</button>
+
+      <div class="detail-header">
+        <div>
+          <h2 id="detail-title">Trip Name</h2>
+          <p id="detail-dates" class="detail-meta"></p>
+          <p id="detail-desc" class="detail-desc"></p>
+        </div>
+        <div class="detail-actions">
+          <button id="btn-edit-trip" class="btn btn-secondary">Edit Trip</button>
+          <button id="btn-delete-trip" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="itinerary">🗓 Itinerary</button>
+        <button class="tab-btn" data-tab="packing">🧳 Packing List</button>
+        <button class="tab-btn" data-tab="budget">💰 Budget</button>
+      </div>
+
+      <!-- Itinerary Tab -->
+      <section id="tab-itinerary" class="tab-panel active">
+        <div class="panel-toolbar">
+          <h3>Itinerary</h3>
+          <button id="btn-add-activity" class="btn btn-primary">+ Add Activity</button>
+        </div>
+        <div id="itinerary-list" class="item-list">
+          <p class="empty-msg">No activities yet.</p>
+        </div>
+      </section>
+
+      <!-- Packing Tab -->
+      <section id="tab-packing" class="tab-panel">
+        <div class="panel-toolbar">
+          <h3>Packing List</h3>
+          <button id="btn-add-pack" class="btn btn-primary">+ Add Item</button>
+        </div>
+        <div id="pack-progress-wrap">
+          <div id="pack-progress-bar"><div id="pack-progress-fill"></div></div>
+          <span id="pack-progress-label">0 / 0 packed</span>
+        </div>
+        <ul id="pack-list" class="item-list checklist">
+          <p class="empty-msg">No items yet.</p>
+        </ul>
+      </section>
+
+      <!-- Budget Tab -->
+      <section id="tab-budget" class="tab-panel">
+        <div class="panel-toolbar">
+          <h3>Budget</h3>
+          <button id="btn-add-expense" class="btn btn-primary">+ Add Expense</button>
+        </div>
+        <div class="budget-summary">
+          <div class="budget-card">
+            <span>Budget</span>
+            <strong id="budget-total">$0</strong>
+          </div>
+          <div class="budget-card">
+            <span>Spent</span>
+            <strong id="budget-spent">$0</strong>
+          </div>
+          <div class="budget-card" id="budget-remaining-card">
+            <span>Remaining</span>
+            <strong id="budget-remaining">$0</strong>
+          </div>
+        </div>
+        <div id="expense-list" class="item-list">
+          <p class="empty-msg">No expenses yet.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===== MODAL: New / Edit Trip ===== -->
+  <div id="modal-trip" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modal-trip-title">
+      <div class="modal-header">
+        <h3 id="modal-trip-title">New Trip</h3>
+        <button class="modal-close" data-modal="modal-trip">✕</button>
+      </div>
+      <form id="form-trip" novalidate>
+        <label>Destination *
+          <input type="text" id="trip-dest" placeholder="e.g. Paris, France" required />
+        </label>
+        <div class="form-row">
+          <label>Start Date *
+            <input type="date" id="trip-start" required />
+          </label>
+          <label>End Date *
+            <input type="date" id="trip-end" required />
+          </label>
+        </div>
+        <label>Budget ($)
+          <input type="number" id="trip-budget" placeholder="e.g. 2000" min="0" />
+        </label>
+        <label>Notes
+          <textarea id="trip-notes" rows="3" placeholder="Travel notes, hotel info, etc."></textarea>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-modal="modal-trip">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-trip">Save Trip</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Add / Edit Activity ===== -->
+  <div id="modal-activity" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modal-activity-title">
+      <div class="modal-header">
+        <h3 id="modal-activity-title">Add Activity</h3>
+        <button class="modal-close" data-modal="modal-activity">✕</button>
+      </div>
+      <form id="form-activity" novalidate>
+        <label>Day / Date *
+          <input type="date" id="activity-date" required />
+        </label>
+        <label>Activity *
+          <input type="text" id="activity-name" placeholder="e.g. Visit Eiffel Tower" required />
+        </label>
+        <div class="form-row">
+          <label>Start Time
+            <input type="time" id="activity-start" />
+          </label>
+          <label>End Time
+            <input type="time" id="activity-end" />
+          </label>
+        </div>
+        <label>Notes
+          <textarea id="activity-notes" rows="2" placeholder="Optional details"></textarea>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-modal="modal-activity">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Activity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Add / Edit Packing Item ===== -->
+  <div id="modal-pack" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modal-pack-title">
+      <div class="modal-header">
+        <h3 id="modal-pack-title">Add Packing Item</h3>
+        <button class="modal-close" data-modal="modal-pack">✕</button>
+      </div>
+      <form id="form-pack" novalidate>
+        <label>Item Name *
+          <input type="text" id="pack-name" placeholder="e.g. Passport" required />
+        </label>
+        <label>Category
+          <select id="pack-category">
+            <option value="General">General</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Toiletries">Toiletries</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Documents">Documents</option>
+            <option value="Medications">Medications</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-modal="modal-pack">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Add / Edit Expense ===== -->
+  <div id="modal-expense" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modal-expense-title">
+      <div class="modal-header">
+        <h3 id="modal-expense-title">Add Expense</h3>
+        <button class="modal-close" data-modal="modal-expense">✕</button>
+      </div>
+      <form id="form-expense" novalidate>
+        <label>Description *
+          <input type="text" id="expense-desc" placeholder="e.g. Hotel stay" required />
+        </label>
+        <div class="form-row">
+          <label>Amount ($) *
+            <input type="number" id="expense-amount" placeholder="0.00" min="0" step="0.01" required />
+          </label>
+          <label>Category
+            <select id="expense-category">
+              <option value="Accommodation">Accommodation</option>
+              <option value="Transport">Transport</option>
+              <option value="Food">Food</option>
+              <option value="Activities">Activities</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+        </div>
+        <label>Date
+          <input type="date" id="expense-date" />
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-modal="modal-expense">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRM DIALOG ===== -->
+  <div id="modal-confirm" class="modal-overlay" aria-hidden="true">
+    <div class="modal modal-sm" role="dialog">
+      <div class="modal-header">
+        <h3>Confirm Delete</h3>
+        <button class="modal-close" data-modal="modal-confirm">✕</button>
+      </div>
+      <p id="confirm-msg" style="padding: 0 1.5rem 1rem;">Are you sure you want to delete this?</p>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-confirm">Cancel</button>
+        <button id="btn-confirm-yes" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,1 +1,1 @@
-console.log("welcome to my project")
+// Entry point — see app.js for the Trip Planner application logic.
