@@ -3,9 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>welcome to git practice</title>
+    <title>Trip Planner</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 24px 16px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 32px;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ── Add-Trip Form ── */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #764ba2;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid .full-width { grid-column: 1 / -1; }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        textarea { resize: vertical; min-height: 72px; }
+
+        .btn {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:hover { opacity: 0.88; }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        .btn-danger  { background: #ff5252; color: #fff; padding: 6px 12px; font-size: 0.8rem; }
+        .btn-success { background: #43c6ac; color: #fff; padding: 6px 12px; font-size: 0.8rem; }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #764ba2;
+            color: #764ba2;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+        }
+
+        /* ── Stats Bar ── */
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 14px 20px;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .stat-box .num { font-size: 1.8rem; font-weight: 700; }
+        .stat-box .lbl { font-size: 0.78rem; opacity: 0.85; }
+
+        /* ── Trip Cards ── */
+        .trips-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .trips-header h2 { color: #fff; font-size: 1.3rem; }
+
+        #filterSelect {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .trip-list { display: flex; flex-direction: column; gap: 20px; }
+
+        .trip-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .trip-card:hover { transform: translateY(-2px); }
+
+        .trip-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .trip-title { font-size: 1.15rem; font-weight: 700; color: #333; }
+
+        .badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-upcoming  { background: #e3f0ff; color: #2979ff; }
+        .badge-ongoing   { background: #e8f5e9; color: #2e7d32; }
+        .badge-completed { background: #f3e5f5; color: #7b1fa2; }
+
+        .trip-body { padding: 16px 22px; }
+
+        .trip-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+            color: #666;
+        }
+
+        .trip-meta span { display: flex; align-items: center; gap: 5px; }
+
+        .trip-notes {
+            font-size: 0.88rem;
+            color: #777;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        /* ── Packing List ── */
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .packing-list { list-style: none; margin-bottom: 12px; }
+
+        .packing-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.88rem;
+            color: #444;
+        }
+
+        .packing-list li.checked { text-decoration: line-through; color: #aaa; }
+
+        .packing-list li input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: #764ba2;
+            cursor: pointer;
+        }
+
+        .packing-list li .remove-item {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0 4px;
+        }
+
+        .packing-list li .remove-item:hover { color: #ff5252; }
+
+        .add-item-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .add-item-row input {
+            flex: 1;
+            padding: 7px 10px;
+            font-size: 0.85rem;
+        }
+
+        .add-item-row .btn { padding: 7px 14px; font-size: 0.82rem; }
+
+        /* ── Budget ── */
+        .budget-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .budget-bar-wrap {
+            flex: 1;
+            min-width: 120px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .budget-bar {
+            height: 100%;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #43c6ac, #667eea);
+            transition: width 0.4s;
+        }
+
+        .budget-bar.over { background: linear-gradient(90deg, #ff8a65, #ff5252); }
+
+        .budget-text { font-size: 0.82rem; color: #666; white-space: nowrap; }
+
+        .trip-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            padding: 40px 20px;
+            font-size: 1rem;
+        }
+
+        .empty-state .icon { font-size: 3rem; margin-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid .full-width { grid-column: 1; }
+        }
+    </style>
 </head>
 <body>
-    
+    <div class="container">
+        <h1>✈️ Trip Planner</h1>
+        <p class="subtitle">Plan, organise, and track all your adventures</p>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-box"><div class="num" id="statTotal">0</div><div class="lbl">Total Trips</div></div>
+            <div class="stat-box"><div class="num" id="statUpcoming">0</div><div class="lbl">Upcoming</div></div>
+            <div class="stat-box"><div class="num" id="statOngoing">0</div><div class="lbl">Ongoing</div></div>
+            <div class="stat-box"><div class="num" id="statCompleted">0</div><div class="lbl">Completed</div></div>
+        </div>
+
+        <!-- Add Trip Form -->
+        <div class="card">
+            <h2>➕ Add New Trip</h2>
+            <div class="form-grid">
+                <div>
+                    <label for="destination">Destination *</label>
+                    <input type="text" id="destination" placeholder="e.g. Paris, France">
+                </div>
+                <div>
+                    <label for="tripName">Trip Name *</label>
+                    <input type="text" id="tripName" placeholder="e.g. Summer Vacation 2025">
+                </div>
+                <div>
+                    <label for="startDate">Start Date *</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div>
+                    <label for="endDate">End Date *</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div>
+                    <label for="budget">Total Budget ($)</label>
+                    <input type="number" id="budget" placeholder="0" min="0">
+                </div>
+                <div>
+                    <label for="spent">Amount Spent ($)</label>
+                    <input type="number" id="spent" placeholder="0" min="0">
+                </div>
+                <div class="full-width">
+                    <label for="notes">Notes / Itinerary</label>
+                    <textarea id="notes" placeholder="Add hotels, activities, reminders…"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addTrip()">Add Trip</button>
+        </div>
+
+        <!-- Trip List -->
+        <div class="trips-header">
+            <h2>🗺️ My Trips</h2>
+            <select id="filterSelect" onchange="renderTrips()">
+                <option value="all">All Trips</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+
+        <div class="trip-list" id="tripList"></div>
+    </div>
+
+    <script src="index.js"></script>
 </body>
 </html>
